@@ -1,2 +1,4 @@
 experiments/
 build/
+.idea/
+cmake-build-debug/
