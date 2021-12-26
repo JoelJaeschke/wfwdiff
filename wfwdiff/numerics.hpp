@@ -5,7 +5,7 @@
 #include <immintrin.h>
 
 #include "autodiff.hpp"
-#include "vector.hpp"
+#include "vector/vector.hpp"
 
 namespace std {
 using wfwdiff::var;
@@ -19,7 +19,7 @@ vec_t sin(const vec_t x) {
 vec_t cos(const vec_t in) {
     vec_t out;
     for (std::size_t i = 0; i < 4; i++) {
-        out.set(i, std::cos(in[i]));
+        out[i] = std::cos(in[i]);
     }
     return out;
 }
@@ -43,7 +43,7 @@ vec_t atan(const vec_t x) {
 vec_t exp(const vec_t in) {
     vec_t out;
     for (std::size_t i = 0; i < 4; i++) {
-        out.set(i, std::exp(in[i]));
+        out[i] = std::exp(in[i]);
     }
     return out;
 }

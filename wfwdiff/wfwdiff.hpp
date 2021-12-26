@@ -3,6 +3,6 @@
 
 #include "autodiff.hpp"
 #include "numerics.hpp"
-#include "vector.hpp"
+#include "vector/vector.hpp"
 
 #endif

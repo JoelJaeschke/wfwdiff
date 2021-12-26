@@ -6,7 +6,7 @@
 #include <tuple>
 #include <utility>
 
-#include "vector.hpp"
+#include "vector/vector.hpp"
 
 namespace wfwdiff {
 namespace autodiff {
@@ -16,7 +16,7 @@ struct var {
     T value;
     U grad;
 
-    constexpr var(): value(), grad(){};
+    constexpr var() : value(), grad(){};
     constexpr var(T value) : value(value), grad(){};
     constexpr var(T value, U grad) : value(value), grad(grad){};
 
@@ -29,7 +29,8 @@ struct var {
     };
 
     constexpr var<T, U> operator*(const var<T, U> rhs) const {
-        return var<T, U>(value * rhs.value, rhs.grad * value + grad * rhs.value);
+        return var<T, U>(value * rhs.value,
+                         rhs.grad * value + grad * rhs.value);
     };
 
     constexpr var<T, U> operator/(const var<T, U> rhs) const {
@@ -96,31 +97,35 @@ constexpr auto parallelWrt(Args&&... args) {
 }
 
 template <size_t I = 0, size_t W = 1, typename T, typename... Args>
-auto vectorize_scalar_argument(
-    std::tuple<Args...>& args,
-    std::array<T, W>& vectorized_args)
-{
+auto vectorize_scalar_argument(std::tuple<Args...>& args,
+                               std::array<T, W>& vectorized_args) {
     const auto current_arg = std::get<I>(args);
-    auto vectorized_grad = wfwdiff::vector<double, 4>();
-    if (current_arg.grad == 1.0)
-        vectorized_grad.set(I, 1.0);
+    using grad_t = decltype(current_arg.grad);
 
-    const auto new_arg = var<double, wfwdiff::vector<double, 4>>(
-        current_arg.value,
-        vectorized_grad);
+    auto vectorized_grad =
+        generic_vec::vector<grad_t,
+                            generic_vec::fastest_vec_available<W>::size>();
+    if (current_arg.grad == 1.0) vectorized_grad[I] = 1.0;
+
+    const auto new_arg = var(current_arg.value, vectorized_grad);
     vectorized_args[I] = new_arg;
 
-    if constexpr(I+1 != sizeof...(Args))
-        vectorize_scalar_argument<I+1, W, T, Args...>(args, vectorized_args);
+    if constexpr (I + 1 != sizeof...(Args))
+        vectorize_scalar_argument<I + 1, W, T, Args...>(args, vectorized_args);
 }
-
-template <typename...> struct WhichType;
 
 template <typename... Args>
 auto vectorize_args(std::tuple<Args...> args) {
     constexpr size_t arg_length = sizeof...(Args);
-    std::array<var<double, wfwdiff::vector<double, 4>>,
-                    arg_length> vectorized_args;
+    const auto elem0 = std::get<0>(args);
+
+    using val_t = decltype(elem0.value);
+    using grad_t = decltype(elem0.grad);
+
+    std::array<var<val_t, vector<grad_t, generic_vec::fastest_vec_available<
+                                             arg_length>::size>>,
+               arg_length>
+        vectorized_args;
 
     vectorize_scalar_argument(args, vectorized_args);
 
@@ -138,14 +143,13 @@ auto eval(const F&& func, Wrt<DVars...> wrt, At<Args...> at) {
     return ans;
 }
 
-// Instead of
 template <typename F, typename... DVars, typename... Args>
 auto eval(const F&& func, ParallelWrt<DVars...> wrt, At<Args...> at) {
     seed(wrt.args);
 
-    auto converted_args = vectorize_args(at.args);
+    auto vectorized_args = vectorize_args(at.args);
 
-    const auto ans = std::apply(func, converted_args);
+    const auto ans = std::apply(func, vectorized_args);
 
     unseed(wrt.args);
 
@@ -156,9 +160,9 @@ auto eval(const F&& func, ParallelWrt<DVars...> wrt, At<Args...> at) {
 
 using autodiff::at;
 using autodiff::eval;
+using autodiff::parallelWrt;
 using autodiff::var;
 using autodiff::wrt;
-using autodiff::parallelWrt;
 
 }  // End namespace wfwdiff
 
