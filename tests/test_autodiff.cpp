@@ -5,15 +5,13 @@
 
 using val_t = double;
 using scalar_t = wfwdiff::var<val_t, val_t>;
-using vec_t = wfwdiff::var<
-    val_t, wfwdiff::vector<
-               val_t, wfwdiff::generic_vec::fastest_vec_available<2>::size>>;
+using vec_t = wfwdiff::var<val_t, wfwdiff::vec<val_t, 4>>;
 
 scalar_t f_scalar(scalar_t x, scalar_t y) { return std::exp(x) * std::cos(y); }
 
 vec_t f_vec(vec_t x, vec_t y) { return std::exp(x) * std::cos(y); }
 
-TEST_CASE("Test scalar autodiff", "[core]") {
+TEST_CASE("Test scalar autodiff", "[core, autodiff]") {
     scalar_t x = 3.2;
     scalar_t y = 2.1;
 
@@ -24,12 +22,13 @@ TEST_CASE("Test scalar autodiff", "[core]") {
         wfwdiff::eval(f_scalar, wfwdiff::wrt(y), wfwdiff::at(x, y));
 
     REQUIRE(ans_dx.value == Approx(-12.385).epsilon(0.001));
-    REQUIRE(ans_dy.value == Approx(-12.385).epsilon(0.001));
     REQUIRE(ans_dx.grad == Approx(-12.385).epsilon(0.001));
+
+    REQUIRE(ans_dy.value == Approx(-12.385).epsilon(0.001));
     REQUIRE(ans_dy.grad == Approx(-21.176).epsilon(0.001));
 }
 
-TEST_CASE("Test vectorized autodiff", "[core]") {
+TEST_CASE("Test vectorized autodiff", "[core, autodiff]") {
     scalar_t x = 3.2;
     scalar_t y = 2.1;
 

@@ -53,6 +53,9 @@ struct var {
     };
 };
 
+template <typename T, size_t width>
+using vec = wfwdiff::vector<T, wfwdiff::generic_vec::fastest_vec_available<width>::size>;
+
 template <typename... Args>
 struct At {
     std::tuple<Args...> args;
@@ -117,15 +120,12 @@ auto vectorize_scalar_argument(std::tuple<Args...>& args,
 template <typename... Args>
 auto vectorize_args(std::tuple<Args...> args) {
     constexpr size_t arg_length = sizeof...(Args);
-    const auto elem0 = std::get<0>(args);
 
+    const auto elem0 = std::get<0>(args);
     using val_t = decltype(elem0.value);
     using grad_t = decltype(elem0.grad);
 
-    std::array<var<val_t, vector<grad_t, generic_vec::fastest_vec_available<
-                                             arg_length>::size>>,
-               arg_length>
-        vectorized_args;
+    std::array<var<val_t, vec<grad_t, arg_length>>, arg_length> vectorized_args;
 
     vectorize_scalar_argument(args, vectorized_args);
 
@@ -147,9 +147,7 @@ template <typename F, typename... DVars, typename... Args>
 auto eval(const F&& func, ParallelWrt<DVars...> wrt, At<Args...> at) {
     seed(wrt.args);
 
-    auto vectorized_args = vectorize_args(at.args);
-
-    const auto ans = std::apply(func, vectorized_args);
+    const auto ans = std::apply(func, vectorize_args(at.args));
 
     unseed(wrt.args);
 
@@ -162,6 +160,7 @@ using autodiff::at;
 using autodiff::eval;
 using autodiff::parallelWrt;
 using autodiff::var;
+using autodiff::vec;
 using autodiff::wrt;
 
 }  // End namespace wfwdiff

@@ -17,6 +17,10 @@ struct vector {
 
    public:
     vector(): storage_() {};
+
+    template<typename... Ts>
+    vector(Ts... vals): storage_(vals...) {}
+
     vector(const std::array<T, width>& input): storage_(input) {};
     vector(const T initializer) {
         std::fill_n(storage_.begin(), width, initializer);

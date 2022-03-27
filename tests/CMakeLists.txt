@@ -11,4 +11,10 @@ target_compile_features(test_autodiff PRIVATE cxx_std_20)
 target_compile_options(test_autodiff PRIVATE -mavx2 -march=native)
 target_link_libraries(test_autodiff PRIVATE libwfwdiff Catch2::Catch2)
 
+add_executable(test_avx2_math test_avx2_math.cpp)
+target_compile_features(test_avx2_math PRIVATE cxx_std_20)
+target_compile_options(test_avx2_math PRIVATE -mavx2 -march=native -lm)
+target_link_libraries(test_avx2_math PRIVATE libwfwdiff Catch2::Catch2)
+
 add_test(NAME TestAutodiff COMMAND test_autodiff)
+add_test(NAME TestAVX2Math COMMAND test_avx2_math)

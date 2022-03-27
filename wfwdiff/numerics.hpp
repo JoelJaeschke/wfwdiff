@@ -40,6 +40,7 @@ vec_t atan(const vec_t x) {
     return x;
 }
 
+#if 0
 vec_t exp(const vec_t in) {
     vec_t out;
     for (std::size_t i = 0; i < 4; i++) {
@@ -47,6 +48,11 @@ vec_t exp(const vec_t in) {
     }
     return out;
 }
+#else
+vec_t exp(const vec_t in) {
+    return in.exp();
+}
+#endif
 
 vec_t log(const vec_t x) {
     return x;
