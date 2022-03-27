@@ -1,5 +1,5 @@
 experiments/
-examples/
+_examples/
 build/
 .idea/
 cmake-build-debug/
