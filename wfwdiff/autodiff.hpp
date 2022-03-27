@@ -6,7 +6,7 @@
 #include <tuple>
 #include <utility>
 
-#include "vector/vector.hpp"
+#include "vector.hpp"
 
 namespace wfwdiff {
 namespace autodiff {
@@ -52,9 +52,6 @@ struct var {
         return this / rhs;
     };
 };
-
-template <typename T, size_t width>
-using vec = wfwdiff::vector<T, wfwdiff::generic_vec::fastest_vec_available<width>::size>;
 
 template <typename... Args>
 struct At {
@@ -107,7 +104,7 @@ auto vectorize_scalar_argument(std::tuple<Args...>& args,
 
     auto vectorized_grad =
         generic_vec::vector<grad_t,
-                            generic_vec::fastest_vec_available<W>::size>();
+                            W>();
     if (current_arg.grad == 1.0) vectorized_grad[I] = 1.0;
 
     const auto new_arg = var(current_arg.value, vectorized_grad);
@@ -125,7 +122,7 @@ auto vectorize_args(std::tuple<Args...> args) {
     using val_t = decltype(elem0.value);
     using grad_t = decltype(elem0.grad);
 
-    std::array<var<val_t, vec<grad_t, arg_length>>, arg_length> vectorized_args;
+    std::array<var<val_t, vector<grad_t, arg_length>>, arg_length> vectorized_args;
 
     vectorize_scalar_argument(args, vectorized_args);
 
@@ -160,9 +157,8 @@ using autodiff::at;
 using autodiff::eval;
 using autodiff::parallelWrt;
 using autodiff::var;
-using autodiff::vec;
 using autodiff::wrt;
 
 }  // End namespace wfwdiff
 
-#endif
+#endif // WFWDIFF_AUTODIFF_H

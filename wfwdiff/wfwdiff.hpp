@@ -3,6 +3,6 @@
 
 #include "autodiff.hpp"
 #include "numerics.hpp"
-#include "vector/vector.hpp"
+#include "vector.hpp"
 
-#endif
+#endif // WFWDIFF_H

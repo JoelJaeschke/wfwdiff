@@ -5,10 +5,9 @@
 
 using val_t = double;
 using scalar_t = wfwdiff::var<val_t, val_t>;
-using vec_t = wfwdiff::var<val_t, wfwdiff::vec<val_t, 4>>;
+using vec_t = wfwdiff::var<val_t, wfwdiff::vector<val_t, 2>>;
 
 scalar_t f_scalar(scalar_t x, scalar_t y) { return std::exp(x) * std::cos(y); }
-
 vec_t f_vec(vec_t x, vec_t y) { return std::exp(x) * std::cos(y); }
 
 TEST_CASE("Test scalar autodiff", "[core, autodiff]") {

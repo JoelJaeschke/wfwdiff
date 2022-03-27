@@ -19,7 +19,7 @@ struct vector {
     vector(): storage_() {};
 
     template<typename... Ts>
-    vector(Ts... vals): storage_(vals...) {}
+    vector(Ts... vals): storage_({vals...}) {}
 
     vector(const std::array<T, width>& input): storage_(input) {};
     vector(const T initializer) {
@@ -112,9 +112,22 @@ struct vector {
     std::array<T, width>& data() {
         return storage_;
     };
+
+    friend std::ostream& operator<<(std::ostream& os, const vector<T, width> data) {
+        os << "[";
+        for (const auto& elem : data.storage_) {
+            os << elem << ",";
+        }
+        os << "]";
+
+        return os;
+    }
 };
 
 }  // namespace generic_vec
+
+using generic_vec::vector;
+
 }  // namespace wfwdiff
 
 namespace std {
