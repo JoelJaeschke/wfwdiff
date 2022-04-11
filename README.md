@@ -48,14 +48,14 @@ niceties to make usage for multiple variables more ergonomic. Instead of using a
 ```
 using vec_t = wfwdiff::var<val_t, wfwdiff::vector<val_t, 2>>;
 vec_t f_vec(vec_t x, vec_t y) {
-	return std::exp(x) * std::cos(y);
+    return std::exp(x) * std::cos(y);
 }
 
 int main() {
 	scalar_t x = 3.2;
-    scalar_t y = 2.1;
+	scalar_t y = 2.1;
 
-    const auto ans =
+	const auto ans =
         wfwdiff::eval(f_vec, wfwdiff::parallelWrt(x, y), wfwdiff::at(x, y));
 
 	auto dx = ans.grad[0];
